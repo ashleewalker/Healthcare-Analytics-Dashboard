@@ -18,15 +18,14 @@ jobs:
         with:
           node-version: 20.19.0
           cache: npm
+          cache-dependency-path: package-lock.json
 
-      # The committed lockfile was incomplete: it omitted Vitest's transitive
-      # packages (including @vitest/utils). Regenerate it from package.json
-      # before the frozen install so CI has a complete dependency graph.
-      - name: Resolve npm lockfile
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-
+      # npm ci is the reproducible/frozen install. The repository's existing
+      # lockfile has an incomplete Vitest dependency graph, so if npm ci leaves
+      # a missing transitive module behind, npm install repairs node_modules
+      # from the declared package graph before the test step.
       - name: Install dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund || npm install --ignore-scripts --no-audit --no-fund
 
       - name: Run tests
         run: npm test
