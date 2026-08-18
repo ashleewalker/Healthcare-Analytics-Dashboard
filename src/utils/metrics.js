@@ -15,9 +15,19 @@ export const calculateCompletionRate = (completed, total) => {
 export const calculateAverage = values => {
   if (!Array.isArray(values)) return 0;
 
-  const numericValues = values
-    .map(value => Number(value))
-    .filter(value => Number.isFinite(value));
+  const numericValues = values.reduce((result, value) => {
+    if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
+      return result;
+    }
+
+    const numericValue = Number(value);
+
+    if (Number.isFinite(numericValue)) {
+      result.push(numericValue);
+    }
+
+    return result;
+  }, []);
 
   if (!numericValues.length) return 0;
 
